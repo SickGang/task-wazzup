@@ -31,7 +31,7 @@
         v-if="isActive"
         @closeModal="isActive = !isActive"
         />
-        <button class="btn_get-items waves-effect waves-light btn-small" @click="getData" v-if="btnVisible">Загрузить данные</button>
+        <button class="btn_get-items waves-effect waves-light btn-small" @click="getData" v-if="btnVisible">Показать пользователей</button>
         <loading
         v-if="loading"
         />
