@@ -3,77 +3,46 @@
         <div v-if="items.length > 0" class="mt-5">
             <div class="row">
                 <div class="input-field col row align-items-center justify-content-center">
-                    <input v-model="find" placeholder="Поиск" id="first_name" type="text" class="validate w-75">
+                    <input v-model="query" placeholder="Поиск" id="first_name" type="text" class="validate w-75">
                     <button class="waves-effect waves-light btn-small ml-2" @click="search">Найти</button>
                 </div>
             </div>
-            <div v-if="error" class="mb-3"><span>Результатов не найдено</span></div>
+            <div class="row justify-content-center">
+                <button class="waves-effect waves-light btn-small" @click="clearSearch" v-if="isPagination == false">Сбросить фильтр поиска</button>
+            </div>
+            <div v-if="error" class="mb-4"><span class="error">Результатов не найдено</span></div>
             <table class="table table-hover table-dark">
             <thead>
                 <tr>
-                    <th @click="sortById">
-                    #
-                    <span v-show="this.sortId === true" class="material-icons">arrow_upward</span>
-                    <span v-show="this.sortId === false" class="material-icons">arrow_upward</span>
-                        </th>
                     <th v-for="(item,key) in columns" :key="key"
                     @click="change(key)"
+                    :class="{active: sortKey == key}"
                     >
                     {{item}}
-                    <span v-show="changeFlag === true" class="material-icons">arrow_upward</span>
-                    <span v-show="changeFlag === false" class="material-icons">arrow_downward</span>
+                    <span class="arrow" :class="sortKey == key && changeFlag == true ? 'asc' : 'dsc'"></span>
                     </th>
                 </tr>
             </thead>
                 <contactListItems :items='displayedPosts' @showModal="showModal" />
             </table>
         </div>
-        <transition name="modal" v-if="isActive">
-        <div class="modal-mask">
-          <div class="modal-wrapper" @click.self="isActive = !isActive">
-                <div class="modal-container">
-                <div class="modal-header">
-                    Контактные данные
-                </div>
-
-                <div class="modal-body">
-                    <div class="mb-1">Имя: <span>{{getUser.name}}</span></div>
-                    <div>Адрес: <span>{{getUser.adress}}</span></div>
-                </div>
-
-                <div class="modal-footer">
-                    <slot name="footer">
-                    <button class="modal-default-button btn red" @click="isActive = !isActive">
-                        Закрыть
-                    </button>
-                    </slot>
-                </div>
-                </div>
-            </div>
-        </div>
-        </transition>
-        <button class="btn_get-items waves-effect waves-light btn-small" @click="getData" v-if="this.btnVisible">Загрузить данные</button>
-        <div class="preloader-wrapper big active" v-if="this.loading">
-            <div class="spinner-layer spinner-blue-only">
-            <div class="circle-clipper left">
-                <div class="circle"></div>
-            </div><div class="gap-patch">
-                <div class="circle"></div>
-            </div><div class="circle-clipper right">
-                <div class="circle"></div>
-            </div>
-            </div>
-        </div>
-        <div>
-        </div>
+        <modal
+        :user="getUser"
+        v-if="isActive"
+        @closeModal="isActive = !isActive"
+        />
+        <button class="btn_get-items waves-effect waves-light btn-small" @click="getData" v-if="btnVisible">Загрузить данные</button>
+        <loading
+        v-if="loading"
+        />
         <div class="row justify-content-center" v-show="isPagination">
-        <ul class="pagination">
-            <li class="waves-effect"><a href="#!" @click="page = 1"><span class="material-icons">first_page</span></a></li>
-            <li class="waves-effect"><a href="#!" v-if="page != 1" @click="page--"><i class="material-icons">chevron_left</i></a></li>
-            <li class="waves-effect" :class="{active: page == pageNumber}" v-for="pageNumber in pages.slice(page-1, page+5)" :key="pageNumber" @click="page = pageNumber"><a href="#!">{{pageNumber}}</a></li>
-            <li class="waves-effect" @click="page++" v-if="page < pages.length"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
-            <li class="waves-effect"><a href="#!" @click="page = pages.length"><span class="material-icons">last_page</span></a></li>
-        </ul>
+            <ul class="pagination">
+                <li class="waves-effect"><a href="#!" @click="page = 1"><span class="material-icons">first_page</span></a></li>
+                <li class="waves-effect"><a href="#!" v-if="page != 1" @click="page--"><i class="material-icons">chevron_left</i></a></li>
+                <li class="waves-effect" :class="{active: page == pageNumber}" v-for="pageNumber in pages.slice(page-1, page+5)" :key="pageNumber" @click="page = pageNumber"><a href="#!">{{pageNumber}}</a></li>
+                <li class="waves-effect" @click="page++" v-if="page < pages.length"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
+                <li class="waves-effect"><a href="#!" @click="page = pages.length"><span class="material-icons">last_page</span></a></li>
+            </ul>
         </div>
     </div>
 </template>
@@ -81,11 +50,14 @@
 <script>
 import axios from 'axios'
 import contactListItems from '@/components/contactListItems'
+import modal from '@/components/modal'
+import loading from '@/components/loading'
 
 export default {
     data: function() {
         return {
             columns: {
+                id: '#',
                 fullname: 'Fullname',
                 uname: 'Username',
                 company: 'Company',
@@ -96,9 +68,9 @@ export default {
             loading: false,
             btnVisible: true,
             page: 1,
-            perPage: 50,
+            perPage: 45,
             pages: [],
-            find: '',
+            query: '',
             getUser: {
                 name: '',
                 adress: ''
@@ -106,8 +78,8 @@ export default {
             isActive: false,
             error: false,
             changeFlag: false,
-            sortId: false,
-            isPagination: false
+            isPagination: false,
+            sortKey: ''
         }
     },
     methods: {
@@ -135,46 +107,66 @@ export default {
             return items.slice(from, to)
         },
         change (key) {
-            if (this.changeFlag === false) {
-                this.changeFlag = true
-                this.items.sort((a, b) => {
-                    a = a[key].toLowerCase()
-                    b = b[key].toLowerCase()
-                    if (a > b) return 1
-                    if (a < b) return -1
-              })
+            this.sortKey = key
+            if (key === 'id') {
+                if (this.changeFlag === false) {
+                    this.changeFlag = true
+                    this.items.sort((a, b) => {
+                    if (a.id > b.id) return -1
+                    if (a.id < b.id) return 1
+                })
+                } else {
+                    this.changeFlag = false
+                    this.items.sort((a, b) => {
+                    if (a.id > b.id) return 1
+                    if (a.id < b.id) return -1
+                })
+                }
+            } else if (key === 'state') {
+                if (this.changeFlag === false) {
+                    this.changeFlag = true
+                    this.items.sort((a, b) => {
+                        a = a.address.[key].toLowerCase()
+                        b = b.address.[key].toLowerCase()
+                        if (a > b) return 1
+                        if (a < b) return -1
+                })
+                } else {
+                    this.changeFlag = false
+                    this.items.sort((a, b) => {
+                        a = a.address.[key].toLowerCase()
+                        b = b.address.[key].toLowerCase()
+                        if (a > b) return -1
+                        if (a < b) return 1
+                })
+                }
             } else {
-                this.changeFlag = false
-                this.items.sort((a, b) => {
-                    a = a[key].toLowerCase()
-                    b = b[key].toLowerCase()
-                    if (a > b) return -1
-                    if (a < b) return 1
-              })
-            }
-        },
-        sortById () {
-            if (this.sortId === false) {
-                this.sortId = true
-                this.items.sort((a, b) => {
-                if (a.id > b.id) return -1
-                if (a.id < b.id) return 1
-            })
-            } else {
-                this.sortId = false
-                this.items.sort((a, b) => {
-                if (a.id > b.id) return 1
-                if (a.id < b.id) return -1
-            })
+                if (this.changeFlag === false) {
+                    this.changeFlag = true
+                    this.items.sort((a, b) => {
+                        a = a[key].toLowerCase()
+                        b = b[key].toLowerCase()
+                        if (a > b) return 1
+                        if (a < b) return -1
+                })
+                } else {
+                    this.changeFlag = false
+                    this.items.sort((a, b) => {
+                        a = a[key].toLowerCase()
+                        b = b[key].toLowerCase()
+                        if (a > b) return -1
+                        if (a < b) return 1
+                })
+                }
             }
         },
         search () {
             this.isPagination = false
-            if (this.find != '') {
+            if (this.query != '') {
                 this.error = false
                 this.items = this.items.filter(item => {
                     for (let key in item) {
-                        if (String(item[key]).indexOf(this.find) !== -1) {
+                        if (String(item[key]).indexOf(this.query) !== -1) {
                             return true
                         }
                     }
@@ -182,7 +174,7 @@ export default {
 
                 if (this.items.length == 0) {
                     this.error = true
-                    this.find = ''
+                    this.query = ''
                     this.getData()
                 }
             } else {
@@ -199,6 +191,11 @@ export default {
                     this.getUser.adress = array.address.zip + ', ' + array.address.state + ', ' + array.address.city + ', ' + array.address.streetAddress 
                 }                
             })
+        },
+        clearSearch () {
+            this.query = ''
+            this.items = []
+            this.getData()
         }
     },
     mounted () {
@@ -219,12 +216,40 @@ export default {
         }
     },
     components: {
-        contactListItems
+        contactListItems, modal, loading
     }
 }
 </script>
 
 <style lang="scss">
+th.active {
+  color: grey;
+}
+
+th.active .arrow {
+  opacity: 1;
+}
+
+.arrow {
+  display: inline-block;
+  vertical-align: middle;
+  width: 0;
+  height: 0;
+  margin-left: 5px;
+  opacity: 0.66;
+}
+
+.arrow.asc {
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid #fff;
+}
+
+.arrow.dsc {
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #fff;
+}
 
 .btn_get-items, .preloader-wrapper {
     margin-top: 45vh;
@@ -234,68 +259,18 @@ export default {
     margin-top: 0.2rem;
 }
 
-.modal-mask {
-  position: fixed;
-  z-index: 9998;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: table;
-  transition: opacity 0.3s ease;
-}
-
-.modal-wrapper {
-  display: table-cell;
-  vertical-align: middle;
-}
-
-.modal-container {
-  width: 500px;
-  margin: 0px auto;
-  padding: 20px 30px;
-  background-color: #fff;
-  border-radius: 2px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
-  transition: all 0.3s ease;
-  font-family: Helvetica, Arial, sans-serif;
-}
-
-.modal-header {
-  margin-top: 0;
-  color: #42b983;
-  font-weight: 700;
-}
-
-.modal-body {
-  margin: 20px 0;
-  font-weight: 700;
-}
-
-.modal-default-button {
-    color: white !important;
-}
-
-.modal-enter {
-  opacity: 0;
-}
-
-.modal-leave-active {
-  opacity: 0;
-}
-
-.modal-enter .modal-container,
-.modal-leave-active .modal-container {
-  -webkit-transform: scale(1.1);
-  transform: scale(1.1);
-}
-
 tr {
     cursor: pointer;
 }
 
 th > span.material-icons {
     font-size: 15px;
+}
+
+.error {
+    background-color: #26a69a;
+    color: white;
+    padding: 0.7rem;
+    border-radius: 21px;
 }
 </style>
