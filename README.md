@@ -1,6 +1,6 @@
 # Тестовое задание Wazzup
 ## Preview
-![Превью]('https://prnt.sc/up81et')
+![](public/img/icons/Screenshot_1.png)
 ## Project setup
 ```
 npm install
