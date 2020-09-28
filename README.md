@@ -1,5 +1,6 @@
-# task-wazzupp
-
+# Тестовое задание Wazzup
+## Preview
+![Превью]('https://prnt.sc/up81et')
 ## Project setup
 ```
 npm install
@@ -8,16 +9,6 @@ npm install
 ### Compiles and hot-reloads for development
 ```
 npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
 ```
 
 ### Customize configuration
