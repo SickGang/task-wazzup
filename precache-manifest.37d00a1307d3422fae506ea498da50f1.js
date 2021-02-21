@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "199fda97bedd728d559e",
+    "revision": "41e20f390437dd995cd7",
     "url": "/task-wazzup/css/app.1e664b8e.css"
   },
   {
@@ -12,12 +12,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/task-wazzup/img/Screenshot_1.png"
   },
   {
-    "revision": "d188c9d38c27f0c663446b10dc5e6337",
+    "revision": "09491770bc11dc3fc35978630130d2e1",
     "url": "/task-wazzup/index.html"
   },
   {
-    "revision": "199fda97bedd728d559e",
-    "url": "/task-wazzup/js/app.2c241766.js"
+    "revision": "41e20f390437dd995cd7",
+    "url": "/task-wazzup/js/app.514513e5.js"
   },
   {
     "revision": "e9163cc74195f5dc6dde",
