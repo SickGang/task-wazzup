@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.d016659969c0976952f78e751986d958.js"
+  "/task-wazzup/precache-manifest.18990599b23f220b5d70e3d0dea1cac5.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "task-wazzupp"});
